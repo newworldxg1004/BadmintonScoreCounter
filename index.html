@@ -81,15 +81,35 @@ function serveText(score) {
 }
 
 document.getElementById("left").onclick = () => {
+  pushHistory();
+
   leftScore++;
-  isLeftServing = true;
+  if (isLeftServing) {
+  } else {
+    isLeftServing = true;
+    leftServer = leftScore % 2 === 0 ? 0 : 1;
+  }
+
   update();
+  saveState();
+
+  checkWinner(); // 🔥 추가
 };
 
 document.getElementById("right").onclick = () => {
+  pushHistory();
+
   rightScore++;
-  isLeftServing = false;
+  if (!isLeftServing) {
+  } else {
+    isLeftServing = false;
+    rightServer = rightScore % 2 === 0 ? 0 : 1;
+  }
+
   update();
+  saveState();
+
+  checkWinner(); // 🔥 추가
 };
 
 function reset() {
@@ -99,6 +119,45 @@ function reset() {
   update();
 }
 
+function checkWinner() {
+  if (leftScore >= 21 && leftScore - rightScore >= 2) {
+    showWinner("Team A Wins!");
+    navigator.vibrate(300);
+    return true;
+  }
+  if (rightScore >= 21 && rightScore - leftScore >= 2) {
+    showWinner("Team B Wins!");
+    navigator.vibrate(300);
+    return true;
+  }
+  return false;
+}
+
+function showWinner(text) {
+  const overlay = document.createElement("div");
+
+  overlay.style.position = "fixed";
+  overlay.style.top = "0";
+  overlay.style.left = "0";
+  overlay.style.width = "100%";
+  overlay.style.height = "100%";
+  overlay.style.background = "rgba(0,0,0,0.7)";
+  overlay.style.display = "flex";
+  overlay.style.alignItems = "center";
+  overlay.style.justifyContent = "center";
+  overlay.style.color = "white";
+  overlay.style.fontSize = "40px";
+  overlay.style.zIndex = "100";
+
+  overlay.innerText = text;
+  document.body.appendChild(overlay);
+
+  setTimeout(() => {
+    document.body.removeChild(overlay);
+    reset(); // 🔥 자동 리셋
+  }, 2000); // 2초 표시
+}
+  
 update();
 </script>
 
