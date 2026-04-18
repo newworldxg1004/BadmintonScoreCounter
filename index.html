@@ -4,13 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Badminton Score</title>
-<link rel="manifest" href="manifest.json">
+
 <style>
 body {
   margin: 0;
   font-family: sans-serif;
   display: flex;
-  height: 100vh;
+  height: 100dvh;
+  touch-action: manipulation;
 }
 
 .player {
@@ -19,7 +20,8 @@ body {
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  font-size: 40px;
+  font-size: 28px;
+  padding: 80px 10px 50px;
 }
 
 .left { background: #eee; }
@@ -30,18 +32,42 @@ body {
 }
 
 .score {
-  font-size: 100px;
+  font-size: 90px;
+  font-weight: bold;
+}
+
+.controls {
+  position: fixed;
+  top: 10px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  z-index: 10;
 }
 
 button {
-  position: fixed;
-  top: 10px;
-  left: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  border: none;
+  border-radius: 8px;
+}
+
+.toggle {
+  background: #333;
+  color: white;
 }
 </style>
 </head>
 
 <body>
+
+<div class="controls">
+  <button onclick="undo()">Undo</button>
+  <button onclick="reset()">Reset</button>
+  <button class="toggle" onclick="toggleDoubles()">Doubles</button>
+</div>
 
 <div id="left" class="player left">
   <div>Team A</div>
@@ -55,13 +81,64 @@ button {
   <div id="rightServe"></div>
 </div>
 
-<button onclick="reset()">Reset</button>
-
 <script>
 let leftScore = 0;
 let rightScore = 0;
 let isLeftServing = true;
+let isDoubles = false;
 
+let leftServer = 0;
+let rightServer = 0;
+
+let history = [];
+let gameOver = false;
+let overlay = null;
+
+// 저장
+function saveState() {
+  localStorage.setItem("game", JSON.stringify({
+    leftScore, rightScore, isLeftServing,
+    isDoubles, leftServer, rightServer
+  }));
+}
+
+// 불러오기
+function loadState() {
+  const data = JSON.parse(localStorage.getItem("game"));
+  if (data) {
+    leftScore = data.leftScore;
+    rightScore = data.rightScore;
+    isLeftServing = data.isLeftServing;
+    isDoubles = data.isDoubles;
+    leftServer = data.leftServer;
+    rightServer = data.rightServer;
+  }
+}
+
+// 히스토리 저장
+function pushHistory() {
+  history.push({
+    leftScore, rightScore, isLeftServing,
+    leftServer, rightServer
+  });
+}
+
+// Undo
+function undo() {
+  if (gameOver || history.length === 0) return;
+
+  const prev = history.pop();
+  leftScore = prev.leftScore;
+  rightScore = prev.rightScore;
+  isLeftServing = prev.isLeftServing;
+  leftServer = prev.leftServer;
+  rightServer = prev.rightServer;
+
+  update();
+  saveState();
+}
+
+// 업데이트
 function update() {
   document.getElementById("leftScore").innerText = leftScore;
   document.getElementById("rightScore").innerText = rightScore;
@@ -70,72 +147,40 @@ function update() {
   document.getElementById("right").classList.toggle("serving", !isLeftServing);
 
   document.getElementById("leftServe").innerText =
-    isLeftServing ? serveText(leftScore) : "";
+    isLeftServing ? serveText(leftScore, leftServer) : "";
 
   document.getElementById("rightServe").innerText =
-    !isLeftServing ? serveText(rightScore) : "";
+    !isLeftServing ? serveText(rightScore, rightServer) : "";
 }
 
-function serveText(score) {
-  return score % 2 === 0 ? "Serve: Right" : "Serve: Left";
+// 서브 텍스트
+function serveText(score, server) {
+  const side = score % 2 === 0 ? "Right" : "Left";
+  return isDoubles
+    ? `Server P${server + 1} (${side})`
+    : `Serve: ${side}`;
 }
 
-document.getElementById("left").onclick = () => {
-  pushHistory();
-
-  leftScore++;
-  if (isLeftServing) {
-  } else {
-    isLeftServing = true;
-    leftServer = leftScore % 2 === 0 ? 0 : 1;
-  }
-
-  update();
-  saveState();
-
-  checkWinner(); // 🔥 추가
-};
-
-document.getElementById("right").onclick = () => {
-  pushHistory();
-
-  rightScore++;
-  if (!isLeftServing) {
-  } else {
-    isLeftServing = false;
-    rightServer = rightScore % 2 === 0 ? 0 : 1;
-  }
-
-  update();
-  saveState();
-
-  checkWinner(); // 🔥 추가
-};
-
-function reset() {
-  leftScore = 0;
-  rightScore = 0;
-  isLeftServing = true;
-  update();
-}
-
+// 승리 체크
 function checkWinner() {
   if (leftScore >= 21 && leftScore - rightScore >= 2) {
     showWinner("Team A Wins!");
-    navigator.vibrate(300);
     return true;
   }
   if (rightScore >= 21 && rightScore - leftScore >= 2) {
     showWinner("Team B Wins!");
-    navigator.vibrate(300);
     return true;
   }
   return false;
 }
 
+// 승리 표시
 function showWinner(text) {
-  const overlay = document.createElement("div");
+  if (gameOver) return;
 
+  gameOver = true;
+
+  overlay = document.createElement("div");
   overlay.style.position = "fixed";
   overlay.style.top = "0";
   overlay.style.left = "0";
@@ -152,13 +197,86 @@ function showWinner(text) {
   overlay.innerText = text;
   document.body.appendChild(overlay);
 
+  // 진동 (지원되는 경우)
+  if (navigator.vibrate) navigator.vibrate(300);
+
   setTimeout(() => {
-    document.body.removeChild(overlay);
-    reset(); // 🔥 자동 리셋
-  }, 2000); // 2초 표시
+    if (overlay) document.body.removeChild(overlay);
+    overlay = null;
+    reset();
+  }, 2000);
 }
-  
+
+// 점수 처리 (공통 함수)
+function handleScore(isLeft) {
+  if (gameOver) return;
+
+  pushHistory();
+
+  if (isLeft) {
+    leftScore++;
+    if (!isLeftServing) {
+      isLeftServing = true;
+      leftServer = leftScore % 2 === 0 ? 0 : 1;
+    }
+  } else {
+    rightScore++;
+    if (isLeftServing) {
+      isLeftServing = false;
+      rightServer = rightScore % 2 === 0 ? 0 : 1;
+    }
+  }
+
+  update();
+  saveState();
+  checkWinner();
+}
+
+// 터치 + 클릭 모두 대응
+function attachEvents() {
+  const left = document.getElementById("left");
+  const right = document.getElementById("right");
+
+  left.addEventListener("click", () => handleScore(true));
+  right.addEventListener("click", () => handleScore(false));
+
+  left.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    handleScore(true);
+  });
+
+  right.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    handleScore(false);
+  });
+}
+
+// 리셋
+function reset() {
+  leftScore = 0;
+  rightScore = 0;
+  isLeftServing = true;
+  leftServer = 0;
+  rightServer = 0;
+
+  history = [];
+  gameOver = false;
+
+  update();
+  saveState();
+}
+
+// 복식 토글
+function toggleDoubles() {
+  isDoubles = !isDoubles;
+  update();
+  saveState();
+}
+
+// 초기화
+loadState();
 update();
+attachEvents();
 </script>
 
 </body>
