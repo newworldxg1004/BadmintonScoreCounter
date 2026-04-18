@@ -1,123 +1,106 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2575.7">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px Helvetica; min-height: 17.0px}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Badminton Score</title>
+<link rel="manifest" href="manifest.json">
+<style>
+body {
+  margin: 0;
+  font-family: sans-serif;
+  display: flex;
+  height: 100vh;
+}
+
+.player {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 40px;
+}
+
+.left { background: #eee; }
+.right { background: #ddd; }
+
+.serving {
+  background: lightgreen !important;
+}
+
+.score {
+  font-size: 100px;
+}
+
+button {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+}
+</style>
 </head>
+
 <body>
-  <link rel="manifest" href="manifest.json">
-<p class="p1">&lt;!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1">&lt;meta charset="UTF-8"&gt;</p>
-<p class="p1">&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
-<p class="p1">&lt;title&gt;Badminton Score&lt;/title&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;style&gt;</p>
-<p class="p1">body {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin: 0;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-family: sans-serif;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>height: 100vh;</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">.player {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>flex: 1;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>flex-direction: column;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>justify-content: space-between;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>align-items: center;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size: 40px;</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">.left { background: #eee; }</p>
-<p class="p1">.right { background: #ddd; }</p>
-<p class="p2"><br></p>
-<p class="p1">.serving {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background: lightgreen !important;</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">.score {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size: 100px;</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">button {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>position: fixed;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>top: 10px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>left: 10px;</p>
-<p class="p1">}</p>
-<p class="p1">&lt;/style&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;body&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;div id="left" class="player left"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;div&gt;Team A&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="score" id="leftScore"&gt;0&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;div id="leftServe"&gt;&lt;/div&gt;</p>
-<p class="p1">&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;div id="right" class="player right"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;div&gt;Team B&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="score" id="rightScore"&gt;0&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;div id="rightServe"&gt;&lt;/div&gt;</p>
-<p class="p1">&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;button onclick="reset()"&gt;Reset&lt;/button&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;script&gt;</p>
-<p class="p1">let leftScore = 0;</p>
-<p class="p1">let rightScore = 0;</p>
-<p class="p1">let isLeftServing = true;</p>
-<p class="p2"><br></p>
-<p class="p1">function update() {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById("leftScore").innerText = leftScore;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById("rightScore").innerText = rightScore;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById("left").classList.toggle("serving", isLeftServing);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById("right").classList.toggle("serving", !isLeftServing);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById("leftServe").innerText =</p>
-<p class="p1"><span class="Apple-converted-space">    </span>isLeftServing ? serveText(leftScore) : "";</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById("rightServe").innerText =</p>
-<p class="p1"><span class="Apple-converted-space">    </span>!isLeftServing ? serveText(rightScore) : "";</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">function serveText(score) {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>return score % 2 === 0 ? "Serve: Right" : "Serve: Left";</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">document.getElementById("left").onclick = () =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>leftScore++;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>isLeftServing = true;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>update();</p>
-<p class="p1">};</p>
-<p class="p2"><br></p>
-<p class="p1">document.getElementById("right").onclick = () =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>rightScore++;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>isLeftServing = false;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>update();</p>
-<p class="p1">};</p>
-<p class="p2"><br></p>
-<p class="p1">function reset() {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>leftScore = 0;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>rightScore = 0;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>isLeftServing = true;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>update();</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">update();</p>
-<p class="p1">&lt;/script&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
+
+<div id="left" class="player left">
+  <div>Team A</div>
+  <div class="score" id="leftScore">0</div>
+  <div id="leftServe"></div>
+</div>
+
+<div id="right" class="player right">
+  <div>Team B</div>
+  <div class="score" id="rightScore">0</div>
+  <div id="rightServe"></div>
+</div>
+
+<button onclick="reset()">Reset</button>
+
+<script>
+let leftScore = 0;
+let rightScore = 0;
+let isLeftServing = true;
+
+function update() {
+  document.getElementById("leftScore").innerText = leftScore;
+  document.getElementById("rightScore").innerText = rightScore;
+
+  document.getElementById("left").classList.toggle("serving", isLeftServing);
+  document.getElementById("right").classList.toggle("serving", !isLeftServing);
+
+  document.getElementById("leftServe").innerText =
+    isLeftServing ? serveText(leftScore) : "";
+
+  document.getElementById("rightServe").innerText =
+    !isLeftServing ? serveText(rightScore) : "";
+}
+
+function serveText(score) {
+  return score % 2 === 0 ? "Serve: Right" : "Serve: Left";
+}
+
+document.getElementById("left").onclick = () => {
+  leftScore++;
+  isLeftServing = true;
+  update();
+};
+
+document.getElementById("right").onclick = () => {
+  rightScore++;
+  isLeftServing = false;
+  update();
+};
+
+function reset() {
+  leftScore = 0;
+  rightScore = 0;
+  isLeftServing = true;
+  update();
+}
+
+update();
+</script>
+
 </body>
 </html>
